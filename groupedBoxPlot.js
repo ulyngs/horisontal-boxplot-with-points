@@ -33,7 +33,7 @@ var palette = d3.scale.category20();
 d3.csv("fakeBasketData.csv", function(error,csv) {
 
     // set the domain of the xScale
-    xScale.domain([0, 50]);
+    xScale.domain([0, 45]);
 
     // set the position of the y axis and append it
     var xAxisYPos = height - padding;
@@ -86,8 +86,8 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         drawBoxes(svg, dataForCategory, colToPlot = "goals", whiskerHeight = 10, boxHeight = 20, boxY, boxNumber = i);
 
         // draw data points
-        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "goals", pointSize = 1.9, 
-            boxY, jitterAmount = 4, yDisplacement = 5, categoryIndex = i, hoverX = -5, hoverY = -10);
+        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "goals", pointSize = 1.7, 
+            boxY, yDisplacement = 15, jitterAmount = 3, categoryIndex = i, hoverX = -5, hoverY = -10);
 
         // draw labels
         drawCategoryLabels(svg, label = categories[i].key, xPlacement = 5, boxY, yDisplacement = 4);
@@ -238,14 +238,17 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
 
 function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY, 
     yDisplacement, jitterAmount, categoryIndex, hoverX, hoverY) {
-    // helper function to jitter data points
-    function random_jitter(boxY) {
-        if (Math.round(Math.random() * 1) == 0)
-            var seed = -jitterAmount;
-        else
-            var seed = jitterAmount;
-        return boxY + Math.floor((Math.random() * jitterAmount) + 1);
-    }
+    
+    console.log(jitterAmount);
+    boxY = boxY + yDisplacement;
+
+	function random_jitter(boxY) {
+	    if (Math.round(Math.random() * 1) == 0)
+	        var seed = -jitterAmount;
+	    else
+	        var seed = jitterAmount;
+	    return boxY + Math.floor((Math.random() * seed) + 1);
+	}
 
     // make an array of the data we want to plot
     var data = csv.map(function(d) {
@@ -263,7 +266,7 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
         .append("g")
         .attr("class", "dataPoints" + categoryIndex)    
         .attr("transform", function(d){
-            return "translate(" + xScale(d[colToPlot]) + "," + random_jitter(boxY + yDisplacement) + ")";
+            return "translate(" + xScale(d[colToPlot]) + "," + random_jitter(boxY) + ")";
         })
         // show app name when hovering over a data point
         .on("mouseover", function(d){       
