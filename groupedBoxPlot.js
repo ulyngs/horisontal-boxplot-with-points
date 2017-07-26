@@ -280,17 +280,22 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
             return "translate(" + xScale(d[colToPlot]) + "," + random_jitter(boxY) + ")";
         })
         
-    	// show app name when hovering over a data point
+        // show app name when hovering over a data point
         .on("mouseover", function(d){       
-            d3.select(this)
-                .append("text")
-                .attr("class", "hoverText")
-                .text(d[colToHover])
-                .attr("transform", "translate(" + hoverX + ", " + hoverY + ")");
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            
+            div.html(d[colToHover] + ": " + d[colToPlot] + "%")
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
+            console.log(d[colToHover].length);
         })
         // remove text when we move the mouse away
-        .on("mouseout", function(d){        
-            d3.selectAll("text.hoverText").remove();
+        .on("mouseout", function(d) {       
+            div.transition()        
+                .duration(500)      
+                .style("opacity", 0);   
         });
 
         // draw the data points as circles
