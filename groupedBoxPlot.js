@@ -66,7 +66,7 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         .text("Goals Scored in Made-Up Basketball Season");
 
     // set which category we want to group by and get them
-    var groupingCategory = "bucket_category";
+    var groupingCategory = "playerList";
     var categories = d3.nest()
         .key(function(d) { return d[groupingCategory] })
         .entries(csv);
@@ -172,8 +172,6 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
 
     // get statistics for this data
     boxStats = calcBoxStats(data);
-
-    console.log(boxStats);
 
     //draw vertical line for lowerWhisker
     svg.append("line")
