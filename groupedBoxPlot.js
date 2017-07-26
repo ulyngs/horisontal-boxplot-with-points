@@ -89,7 +89,7 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         drawBoxes(svg, dataForCategory, colToPlot = "goals", whiskerHeight = 10, boxHeight = 20, boxY, boxNumber = i);
 
         // draw data points
-        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "goals", pointSize = 1.7, 
+        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "playerList", pointSize = 1.7, 
             boxY, yDisplacement = 15, jitterAmount = 3, categoryIndex = i, hoverX = -5, hoverY = -10);
 
         // draw labels
@@ -284,7 +284,7 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
                 .duration(200)
                 .style("opacity", .9);
             
-            div.html(d[colToHover] + ": " + d[colToPlot] + "%")
+            div.html(d[colToHover] + ": " + d[colToPlot])
                 .style("left", (d3.event.pageX) + "px")     
                 .style("top", (d3.event.pageY - 28) + "px");
             console.log(d[colToHover].length);
