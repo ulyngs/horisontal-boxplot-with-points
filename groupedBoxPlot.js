@@ -5,6 +5,11 @@ var margin = {top: 10, right: 10, bottom: 10, left: 10},
     padding = 30, labelWidth = 120,
     titleMargin = 25;
 
+// Define the div for the tooltip
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
 var svg = d3.select("body")
     .append("svg")
     .attr("width", width)
@@ -53,17 +58,15 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         .attr("x2", function(d) { return xScale(d); })
         .attr("y2", titleMargin + padding - 3);
 
-    // add a title to the graph
+    // add a title to the chart
     svg.append("text")
         .attr("x", (width / 2))             
         .attr("y", titleMargin)
         .attr("class", "title") 
         .text("Goals Scored in Made-Up Basketball Season");
 
-    // set which category we want to group by
-    var groupingCategory = "playerList";
-
-    // get the categories for which we want separate plots
+    // set which category we want to group by and get them
+    var groupingCategory = "bucket_category";
     var categories = d3.nest()
         .key(function(d) { return d[groupingCategory] })
         .entries(csv);
@@ -160,7 +163,6 @@ function calcBoxStats(data){
 *       boxY: the y-coordinate around which the boxes should be centered
 *       categoryIndex: the index of the current category of data being plotted
 */
-
 function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, categoryIndex) {
 
     // make an array of the data to plot
@@ -191,11 +193,11 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
         .attr("y1", boxY - (whiskerHeight/2))
         .attr("y2", boxY + (whiskerHeight/2));
 
-    //draw horizontal line from lowerWhisker to upperWhisker
+    //draw horizontal line from lowerWhisker to 1st quartile
     svg.append("line")
         .attr("class", "whisker")
-        .attr("x1",  xScale(boxStats.lowerWhisker))
-        .attr("x2",  xScale(boxStats.upperWhisker))
+        .attr("x1", xScale(boxStats.lowerWhisker))
+        .attr("x2", xScale(boxStats.q1Val))
         .attr("stroke", "black")
         .attr("y1", boxY)
         .attr("y2", boxY);
@@ -210,6 +212,16 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
         .attr("width", xScale(boxStats.q3Val) - xScale(boxStats.q1Val))
         .attr("height", boxHeight);
 
+//draw horizontal line from 3rd quartile to upperWhisker
+    svg.append("line")
+        .attr("class", "whisker")
+        .attr("x1", xScale(boxStats.q3Val))
+        .attr("x2", xScale(boxStats.upperWhisker))
+        .attr("stroke", "black")
+        .attr("y1", boxY)
+        .attr("y2", boxY);
+	
+	
     //draw vertical line at median
     svg.append("line")
         .attr("class", "median")
@@ -239,8 +251,7 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
 function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY, 
     yDisplacement, jitterAmount, categoryIndex, hoverX, hoverY) {
     
-    console.log(jitterAmount);
-    boxY = boxY + yDisplacement;
+	boxY = boxY + yDisplacement;
 
 	function random_jitter(boxY) {
 	    if (Math.round(Math.random() * 1) == 0)
@@ -268,7 +279,8 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
         .attr("transform", function(d){
             return "translate(" + xScale(d[colToPlot]) + "," + random_jitter(boxY) + ")";
         })
-        // show app name when hovering over a data point
+        
+    	// show app name when hovering over a data point
         .on("mouseover", function(d){       
             d3.select(this)
                 .append("text")
