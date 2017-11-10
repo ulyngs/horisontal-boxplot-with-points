@@ -1,9 +1,9 @@
 //initialize the canvas dimensions
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = 600 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
+    width = 900 - margin.left - margin.right,
+    height = 750 - margin.top - margin.bottom,
     padding = 30, labelWidth = 120,
-    titleMargin = 25;
+    titleMargin = 40;
 
 // Define the div for the tooltip
 var div = d3.select("body").append("div")   
@@ -63,7 +63,8 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         .attr("x", (width / 2))             
         .attr("y", titleMargin)
         .attr("class", "title") 
-        .text("Goals Scored in Made-Up Basketball Season");
+        .text("Goals Scored in Made-Up Basketball Season")
+        .style("font-size", "20px");
 
     // set which category we want to group by and get them
     var groupingCategory = "playerList";
@@ -86,14 +87,14 @@ d3.csv("fakeBasketData.csv", function(error,csv) {
         var boxY = yCanvasSpaceForEach * (i + 1) + titleMargin;
 
         // draw box-and-whiskers plot
-        drawBoxes(svg, dataForCategory, colToPlot = "goals", whiskerHeight = 10, boxHeight = 20, boxY, boxNumber = i);
+        drawBoxes(svg, dataForCategory, colToPlot = "goals", whiskerHeight = 15, boxHeight = 30, boxY, boxNumber = i);
 
         // draw data points
-        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "playerList", pointSize = 1.7, 
-            boxY, yDisplacement = 15, jitterAmount = 3, categoryIndex = i, hoverX = -5, hoverY = -10);
+        drawPoints(svg, dataForCategory, colToPlot = "goals", colToHover = "playerList", pointSize = 3.5, 
+            outlierSize = 5, boxY, yDisplacement = 25, jitterAmount = 3, categoryIndex = i, hoverX = -5, hoverY = -10);
 
         // draw labels
-        drawCategoryLabels(svg, label = categories[i].key, xPlacement = 5, boxY, yDisplacement = 4);
+        drawCategoryLabels(svg, label = categories[i].key, fontsize = 13, xPlacement = 5, boxY, yDisplacement = 4);
     }
 });
 
@@ -246,7 +247,7 @@ function drawBoxes(svg, csv, colToPlot, whiskerHeight, boxHeight, boxY, category
 *       hoverY: where, relative to the datapoint, should the hover text be shown vertically?
 */
 
-function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY, 
+function drawPoints(svg, csv, colToPlot, colToHover, pointSize, outlierSize, boxY, 
     yDisplacement, jitterAmount, categoryIndex, hoverX, hoverY) {
     
 	boxY = boxY + yDisplacement;
@@ -299,7 +300,12 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
         // draw the data points as circles
         dataPoints
             .append("circle")
-            .attr("r", pointSize)
+            .attr("r", function(d) {
+                if (d[colToPlot] < boxStats.lowerWhisker || d[colToPlot] > boxStats.upperWhisker)
+                    return outlierSize;
+                else
+                    return pointSize;
+            })
             .attr("class", function(d) {
                 if (d[colToPlot] < boxStats.lowerWhisker || d[colToPlot] > boxStats.upperWhisker)
                     return "outlier";
@@ -319,11 +325,13 @@ function drawPoints(svg, csv, colToPlot, colToHover, pointSize, boxY,
 *       yDisplacement: any desired displacement up or down of the text
 */
 
-function drawCategoryLabels(svg, label, xPlacement, boxY, yDisplacement) { 
+function drawCategoryLabels(svg, label, fontsize, xPlacement, boxY, yDisplacement) { 
     d3.select("svg")
         .append("text")
         .attr("class", "categoryLabel")
         .text(label)
+        .style("font-size", fontsize)
+        .style("font-weight", 400)
         .attr("x", xPlacement)
         .attr("y", boxY + yDisplacement)    
 }
